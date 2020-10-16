@@ -22,13 +22,13 @@ jobs:
         run: dotnet restore
       - name: Install tools
         run: dotnet tool restore
-      - name: Generate openapi.yml
+      - name: Generate openapi.yaml
         run: dotnet nswag run nswag.json
-      - name: Upload openapi.yml
+      - name: Upload openapi.yaml
         uses: actions/upload-artifact@v2
         with:
           name: spec-file
-          path: openapi.yml
+          path: openapi.yaml
   deploy:
     needs: generate-openapi-spec
     # The type of runner that the job will run on
@@ -36,7 +36,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Download openapi.yml
+      - name: Download openapi.yaml
         uses: actions/download-artifact@v2
         with:
           name: spec-file
@@ -44,7 +44,7 @@ jobs:
         uses: Legion2/swagger-ui-action@v1.0.1
         with:
           output: swagger-ui
-          spec-file: openapi.yml
+          spec-file: openapi.yaml
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
