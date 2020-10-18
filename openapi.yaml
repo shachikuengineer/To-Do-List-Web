@@ -27,26 +27,107 @@ tags:
     externalDocs:
       description: Find out more about our store
       url: "http://swagger.io"
+  - name: live feed
+    description: Operations about live feed
+  - name: list
+    description: Operations about list
   - name: store
     description: Access to Petstore orders
 
 paths:
   /user:
+    get:
+      tags:
+        - user
+      summary: Get user account info
+      operationId: getUser
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "403":
+          description: Forbidden
+      security:
+        - bearerAuth: []
     post:
       tags:
         - user
       summary: Create user
       operationId: createUser
+      requestBody:
+        description: Created user object
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
       responses:
-        default:
+        "200":
           description: successful operation
+        "400":
+          description: Bad Request
+        "409":
+          description: The account already exists
+    put:
+      tags:
+        - user
+      summary: Update user password
+      description: This can only be done by the logged in user.
+      operationId: updateUser
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
-        description: Created user object
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+        description: Updated user object
         required: true
+      responses:
+        "200":
+          description: successful operation
+        "403":
+          description: password error
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: successful operation
+        "403":
+          description: password error
+      security:
+        - bearerAuth: []
+
   /user/login:
     get:
       tags:
@@ -77,20 +158,7 @@ paths:
       summary: Logs user into the system
       operationId: loginUser
       requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - account
-                - password
-              properties:
-                account:
-                  type: string
-                  example: wei032499@gmail.com
-                password:
-                  type: string
-                  example: "********"
+        $ref: "#/components/requestBodies/Login"
       responses:
         "200":
           description: successful operation
@@ -107,27 +175,17 @@ paths:
       summary: OAuth callback
       operationId: OAuthCallback
       parameters:
-        - name: service
-          in: query
-          required: true
-          schema:
-            $ref: "#/components/schemas/Service"
         - name: authorizationCode
           in: query
           description: To ask for an access token
           required: true
           schema:
             type: string
-        - name: redirect
-          in: query
-          description: Redirect URL
-          schema:
-            type: string
       responses:
         "200":
           description: OK
         "400":
-          description: Bad Request (service not exist)
+          description: Bad Request
   /user/connect:
     get:
       tags:
@@ -180,16 +238,17 @@ paths:
           description: successful operation
       security:
         - bearerAuth: []
-  "/user/{account}":
+  /user/search:
     get:
       tags:
         - user
-      summary: Get user by user account
-      operationId: getUserByAccount
+      summary: Search and get user profile
+      description: Search user by email or name
+      operationId: searchUser
       parameters:
-        - name: account
-          in: path
-          description: The name that needs to be fetched. Use user1 for testing.
+        - name: query
+          in: query
+          description: email / name
           required: true
           schema:
             type: string
@@ -199,10 +258,32 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
-            application/xml:
+                $ref: "#/components/schemas/Profile"
+        "403":
+          description: Forbidden
+      security:
+        - bearerAuth: []
+  /user/{uid}/profile:
+    get:
+      tags:
+        - user
+      summary: Get user profile
+      operationId: getUserProfile
+      parameters:
+        - name: uid
+          in: path
+          description: Use 0 for testing.
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/Profile"
         "400":
           description: Invalid account supplied
         "404":
@@ -212,50 +293,265 @@ paths:
     put:
       tags:
         - user
-      summary: Updated user
+      summary: Updated user profile
       description: This can only be done by the logged in user.
-      operationId: updateUser
+      operationId: updateUserProfile
       parameters:
-        - name: account
+        - name: uid
           in: path
-          description: name that need to be updated
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Profile"
+        description: Updated user object
+        required: true
       responses:
         "400":
           description: Invalid user supplied
         "404":
           description: User not found
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-        description: Updated user object
-        required: true
+      security:
+        - bearerAuth: []
+
+  /livefeed/{uid}:
+    get:
+      tags:
+        - live feed
+      summary: Get live feed list
+      operationId: getLiveFeed
+      parameters:
+        - name: uid
+          in: path
+          description: Use 0 for testing.
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: other
+          in: query
+          description: "true: also show other people in live feed"
+          schema:
+            type: boolean
+            default: true
+        - name: before
+          in: query
+          description: The number of latest posts skipped
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            maximum: 10
+        - name: limit
+          in: query
+          description: The limit number of return posts
+          schema:
+            type: integer
+            default: 10
+            minimum: 0
+            maximum: 10
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+  /livefeed/post/{postId}:
+    get:
+      tags:
+        - live feed
+      summary: Get the post
+      operationId: getPost
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
       security:
         - bearerAuth: []
     delete:
       tags:
-        - user
-      summary: Delete user
-      description: This can only be done by the logged in user.
-      operationId: deleteUser
+        - live feed
+      summary: Delete/Hide the post in live feed list
+      description: The poster delete the post; the other poeple hide the post from their live feed list.
+      operationId: deletePost
       parameters:
-        - name: account
+        - name: postId
           in: path
-          description: The name that needs to be deleted
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       responses:
+        "200":
+          description: successful operation
         "400":
-          description: Invalid account supplied
-        "404":
-          description: User not found
+          description: Bad Request
+        "403":
+          description: Forbidden
       security:
         - bearerAuth: []
+
+  /list:
+    get:
+      tags:
+        - list
+      summary: Get list
+      operationId: getList
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - list
+      summary: Create a list
+      operationId: createList
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                themeId:
+                  type: integer
+                  format: int64
+                share:
+                  type: array
+                  items:
+                    type: string
+                    description: uid
+              required:
+                - title
+                - themeId
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+  /list/arrange:
+    put:
+      tags:
+        - list
+      summary: Arrange the list
+      operationId: arrangeList
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+                description: The order of listId
+      responses:
+        "200":
+          description: successful operation
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+  /list/{listId}:
+    put:
+      tags:
+        - list
+      summary: Update list
+      operationId: updateList
+      parameters:
+        - name: listId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                themeId:
+                  type: integer
+                  format: int64
+                share:
+                  type: array
+                  items:
+                    type: string
+                    description: uid
+      responses:
+        "200":
+          description: successful operation
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - list
+      summary: Delete list
+      operationId: deleteList
+      parameters:
+        - name: listId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+      security:
+        - bearerAuth: []
+
   # "/pet/{petId}":
   #   get:
   #     tags:
@@ -495,16 +791,9 @@ components:
     User:
       type: object
       properties:
-        account:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
         email:
           type: string
-        password:
-          type: string
+          format: email
         connected:
           type: array
           items:
@@ -514,12 +803,92 @@ components:
           type: integer
           format: int32
           description: User Status
+    Profile:
+      type: object
+      properties:
+        uid:
+          type: integer
+          format: int64
+        picture:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
     Service:
       description: OAuth service
       type: string
       enum:
         - google
         - facebook
+    Task:
+      type: object
+      properties:
+        taskId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/File"
+        urls:
+          type: array
+          items:
+            type: string
+        share:
+          type: array
+          items:
+            $ref: "#/components/schemas/Profile"
+        note:
+          type: string
+    File:
+      type: object
+      properties:
+        name:
+          type: string
+        link:
+          type: string
+    Post:
+      type: object
+      properties:
+        postId:
+          type: integer
+          format: int64
+        poster:
+          $ref: "#/components/schemas/Profile"
+        date:
+          type: string
+          format: date-time
+        task:
+          $ref: "#/components/schemas/Task"
+        review:
+          type: string
+    List:
+      type: object
+      properties:
+        listId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        theme:
+          $ref: "#/components/schemas/Theme"
+        share:
+          type: array
+          items:
+            $ref: "#/components/schemas/Profile"
+    Theme:
+      type: object
+      properties:
+        themeId:
+          type: integer
+          format: int64
+        icon:
+          type: string
+        link:
+          type: string
     Order:
       type: object
       properties:
@@ -578,23 +947,30 @@ components:
         message:
           type: string
   requestBodies:
-    # Login:
-    #   content:
-    #     application/json:
-    #       schema:
-    #         $ref: "#/components/schemas/Login"
-    #     application/xml:
-    #       schema:
-    #         $ref: "#/components/schemas/Login"
-    #   description: The information for login
-    #   required: true
+    Login:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: password
+            required:
+              - email
+              - password
+      description: The information for login
+      required: true
     UserArray:
       content:
         application/json:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/Profile"
       description: List of user object
       required: true
   securitySchemes:
