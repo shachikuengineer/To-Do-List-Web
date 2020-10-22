@@ -17,10 +17,8 @@ servers:
   # Added by API Auto Mocking Plugin
   # Added by API Auto Mocking Plugin
   - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/wei_032499/user/1.0.0
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/wei_032499/account/1.0.0
-  - url: "https://petstore.swagger.io/v2"
+    url: https://virtserver.swaggerhub.com/wei_032499/ToDoList/1.0.0
+  # - url: "https://petstore.swagger.io/v2"
 tags:
   - name: user
     description: Operations about user
@@ -31,8 +29,11 @@ tags:
     description: Operations about live feed
   - name: list
     description: Operations about list
-  - name: store
-    description: Access to Petstore orders
+  - name: task
+    description: Operations about task
+  - name: notice
+    description: Notification message
+  - name: setting
 
 paths:
   /user:
@@ -111,15 +112,6 @@ paths:
       summary: Delete user
       description: This can only be done by the logged in user.
       operationId: deleteUser
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                password:
-                  type: string
-                  format: password
       responses:
         "200":
           description: successful operation
@@ -420,8 +412,8 @@ paths:
     get:
       tags:
         - list
-      summary: Get list
-      operationId: getList
+      summary: Get lists
+      operationId: getLists
       responses:
         "200":
           description: successful operation
@@ -494,10 +486,35 @@ paths:
       security:
         - bearerAuth: []
   /list/{listId}:
+    get:
+      tags:
+        - list
+      summary: Get specific list
+      operationId: getList
+      parameters:
+        - name: listId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
     put:
       tags:
         - list
-      summary: Update list
+      summary: Update specific list
       operationId: updateList
       parameters:
         - name: listId
@@ -533,7 +550,7 @@ paths:
     delete:
       tags:
         - list
-      summary: Delete list
+      summary: Delete specific list
       operationId: deleteList
       parameters:
         - name: listId
@@ -549,6 +566,271 @@ paths:
           description: Bad Request
         "403":
           description: Forbidden
+      security:
+        - bearerAuth: []
+  /task:
+    get:
+      tags:
+        - task
+      summary: Get tasks in specific list
+      description: Get all tasks if the query value is null
+      operationId: getTasks
+      parameters:
+        - name: listId
+          required: true
+          in: query
+          schema:
+            type: string
+            default: null
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - task
+      summary: Create a task
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                listId:
+                  type: integer
+                  format: int64
+                task:
+                  $ref: "#/components/schemas/Task"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  taskId:
+                    type: integer
+                    format: int64
+
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+  /task/{taskId}:
+    get:
+      tags:
+        - task
+      summary: Get specific task
+      operationId: getTask
+      parameters:
+        - name: taskId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - task
+      summary: Update specific task
+      operationId: updateTask
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Task"
+      responses:
+        "200":
+          description: successful operation
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - task
+      summary: Delete specific task
+      operationId: deleteTask
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+      security:
+        - bearerAuth: []
+  /notice:
+    get:
+      tags:
+        - notice
+      summary: Get notification message
+      description: Get all tasks if the query value is null
+      operationId: getAllNotice
+      parameters:
+        - name: before
+          in: query
+          description: The number of latest posts skipped
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            maximum: 10
+        - name: limit
+          in: query
+          description: The limit number of return posts
+          schema:
+            type: integer
+            default: 10
+            minimum: 0
+            maximum: 10
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  unseen:
+                    type: integer
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Notification"
+        "400":
+          description: Bad Request
+      security:
+        - bearerAuth: []
+  /notice/seen:
+    get:
+      tags:
+        - notice
+      summary: Seen all message
+      operationId: seenAllNotice
+      responses:
+        "200":
+          description: successful operation
+      security:
+        - bearerAuth: []
+  /notice/seen/{noticeId}:
+    get:
+      tags:
+        - notice
+      summary: Seen specific message
+      operationId: seenNotice
+      parameters:
+        - name: noticeId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+      security:
+        - bearerAuth: []
+  /notice/invite/{noticeId}:
+    get:
+      tags:
+        - notice
+      summary: Response to the invitation
+      operationId: responseInvite
+      parameters:
+        - name: noticeId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: accepted
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: successful operation
+      security:
+        - bearerAuth: []
+  /setting/datkmode:
+    get:
+      tags:
+        - setting
+      summary: Switch dark mode
+      operationId: switchDarkMode
+      parameters:
+        - name: darkmode
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - open
+              - close
+      responses:
+        "200":
+          description: successful operation
+      security:
+        - bearerAuth: []
+  /setting/language:
+    get:
+      tags:
+        - setting
+      summary: Change language
+      operationId: changeLanguage
+      parameters:
+        - name: language
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - tw
+              - en
+      responses:
+        "200":
+          description: successful operation
       security:
         - bearerAuth: []
 
@@ -673,105 +955,7 @@ paths:
   #           schema:
   #             type: string
   #             format: binary
-  /store/inventory:
-    get:
-      tags:
-        - store
-      summary: Returns pet inventories by status
-      description: Returns a map of status codes to quantities
-      operationId: getInventory
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: integer
-                  format: int32
-      security:
-        - api_key: []
-  /store/order:
-    post:
-      tags:
-        - store
-      summary: Place an order for a pet
-      operationId: placeOrder
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Order"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/Order"
-        "400":
-          description: Invalid Order
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Order"
-        description: order placed for purchasing the pet
-        required: true
-  "/store/order/{orderId}":
-    get:
-      tags:
-        - store
-      summary: Find purchase order by ID
-      description: >-
-        For valid response try integer IDs with value >= 1 and <= 10.\ \ Other
-        values will generated exceptions
-      operationId: getOrderById
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of pet that needs to be fetched
-          required: true
-          schema:
-            type: integer
-            format: int64
-            minimum: 1
-            maximum: 10
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Order"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/Order"
-        "400":
-          description: Invalid ID supplied
-        "404":
-          description: Order not found
-    delete:
-      tags:
-        - store
-      summary: Delete purchase order by ID
-      description: >-
-        For valid response try integer IDs with positive integer value.\ \
-        Negative or non-integer values will generate API errors
-      operationId: deleteOrder
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of the order that needs to be deleted
-          required: true
-          schema:
-            type: integer
-            format: int64
-            minimum: 1
-      responses:
-        "400":
-          description: Invalid ID supplied
-        "404":
-          description: Order not found
+
 externalDocs:
   description: Find out more about Swagger
   url: "http://swagger.io"
@@ -791,6 +975,9 @@ components:
     User:
       type: object
       properties:
+        uid:
+          type: integer
+          format: int64
         email:
           type: string
           format: email
@@ -798,7 +985,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Service"
-            description: Service
         userStatus:
           type: integer
           format: int32
@@ -829,6 +1015,54 @@ components:
           format: int64
         title:
           type: string
+        remind:
+          type: array
+          items:
+            type: object
+            properties:
+              num:
+                type: integer
+                format: int64
+              unit:
+                type: string
+                enum:
+                  - minute
+                  - hour
+                  - day
+                  - week
+                  - month
+                  - year
+              time:
+                type: string
+                format: time
+                description: for day
+              notification:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - email
+                    - web
+        due:
+          type: string
+          format: date-time
+        repeat:
+          type: object
+          properties:
+            num:
+              type: integer
+              format: int64
+            unit:
+              type: string
+              enum:
+                - day
+                - week
+                - month
+                - year
+            time:
+              type: string
+              format: time
+              description: for day
         files:
           type: array
           items:
@@ -843,6 +1077,14 @@ components:
             $ref: "#/components/schemas/Profile"
         note:
           type: string
+        review:
+          type: string
+        isList:
+          type: boolean
+          default: false
+        list:
+          $ref: "#/components/schemas/List"
+
     File:
       type: object
       properties:
@@ -889,63 +1131,43 @@ components:
           type: string
         link:
           type: string
-    Order:
+    Invitation:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-        petId:
-          type: integer
-          format: int64
-        quantity:
-          type: integer
-          format: int32
-        shipDate:
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: Order Status
-          enum:
-            - placed
-            - approved
-            - delivered
-        complete:
+        inviter:
+          $ref: "#/components/schemas/Profile"
+        list:
+          $ref: "#/components/schemas/List"
+        accepted:
           type: boolean
-          default: false
-      xml:
-        name: Order
-    Category:
+    Notification:
       type: object
       properties:
-        id:
+        noticeId:
           type: integer
           format: int64
-        name:
-          type: string
-      xml:
-        name: Category
-    Tag:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-      xml:
-        name: Tag
-    ApiResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
         type:
           type: string
-        message:
+          enum:
+            - invite
+            - complete
+            - post
+        invite:
+          $ref: "#/components/schemas/Invitation"
+        complete:
+          type: object
+          properties:
+            user:
+              $ref: "#/components/schemas/Profile"
+            list:
+              $ref: "#/components/schemas/List"
+        post:
+          $ref: "#/components/schemas/Post"
+        date:
           type: string
+          format: date-time
+        seen:
+          type: boolean
   requestBodies:
     Login:
       content:
