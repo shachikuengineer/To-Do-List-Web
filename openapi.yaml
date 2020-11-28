@@ -22,22 +22,18 @@ servers:
 tags:
   - name: auth
     description: Operations about authorization
-  - name: user
-    description: Operations about user
-    externalDocs:
-      description: Find out more about our store
-      url: "http://swagger.io"
-  - name: live feed
-    description: Operations about live feed
+  - name: accounts
+    description: account of users
+  - name: users
+    description: profile of users
   - name: list
     description: Operations about list
-  - name: task
-    description: Operations about task
-  - name: notice
-    description: Notification message
+  - name: message
+    description: Notification and Live Feed
   - name: setting
 
 paths:
+  #auth
   /auth/login:
     get:
       tags:
@@ -46,11 +42,11 @@ paths:
       description: Redirect to OAuth page
       operationId: loginUserOAuth
       parameters:
-        - name: service
+        - name: provider
           in: query
           required: true
           schema:
-            $ref: "#/components/schemas/Service"
+            $ref: "#/components/schemas/Provider"
       responses:
         "200":
           description: successful operation
@@ -82,12 +78,12 @@ paths:
                 $ref: "#/components/schemas/Token"
         "401":
           description: Invalid account/password supplied
-  /auth/OAuthCallback:
+  /auth/toekn:
     get:
       tags:
         - auth
-      summary: OAuth callback
-      operationId: OAuthCallback
+      summary: OAuth Token
+      operationId: OAuthToken
       parameters:
         - name: authorizationCode
           in: query
@@ -121,12 +117,14 @@ paths:
           description: successful operation
       security:
         - bearerAuth: []
-  /users/create:
+
+  #accounts
+  /accounts/create:
     post:
       tags:
-        - user
-      summary: Create user
-      operationId: createUser
+        - accounts
+      summary: Create an account
+      operationId: createAccount
       requestBody:
         description: Created user object
         required: true
@@ -152,84 +150,30 @@ paths:
           description: Bad Request
         "409":
           description: The account already exists
-  /users/me/account:
+  /accounts/me:
     get:
       tags:
-        - user
-      summary: Get user account info
-      operationId: getAccount
+        - accounts
+      summary: Get my account info
+      operationId: getMyAccount
       responses:
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/Account"
         "403":
           description: Forbidden
       security:
         - bearerAuth: []
-  /user/me/profile:
-    get:
-      tags:
-        - user
-      summary: Get my profile
-      operationId: getMyProfile
-      parameters:
-        - name: uid
-          in: path
-          description: Use 0 for testing.
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Profile"
-        "400":
-          description: Invalid account supplied
-        "404":
-          description: User not found
-      security:
-        - bearerAuth: []
-    put:
-      tags:
-        - user
-      summary: Updated my profile
-      description: This can only be done by the logged in user.
-      operationId: updateMyProfile
-      parameters:
-        - name: uid
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Profile"
-        description: Updated user object
-        required: true
-      responses:
-        "400":
-          description: Invalid user supplied
-        "404":
-          description: User not found
-      security:
-        - bearerAuth: []
-  /users/me/actions/update_password:
+  /accounts/me/actions/update_password:
     post:
       tags:
-        - user
-      summary: Update user password
+        - accounts
+      summary: Update my password
       description: This can only be done by the logged in user.
-      operationId: updatePassword
+      operationId: updateMyPassword
       requestBody:
         content:
           application/json:
@@ -251,13 +195,13 @@ paths:
           description: password error
       security:
         - bearerAuth: []
-  /users/me/actions/deactivate:
+  /accounts/me/actions/deactivate:
     post:
       tags:
-        - user
-      summary: Delete user
+        - accounts
+      summary: Delete my account
       description: This can only be done by the logged in user.
-      operationId: deleteAccount
+      operationId: deleteMyAccount
       requestBody:
         content:
           application/json:
@@ -275,53 +219,93 @@ paths:
           description: password error
       security:
         - bearerAuth: []
-
-  /user/actions/connect:
+  /accounts/me/actions/providers/{provider}:
     get:
       tags:
-        - user
+        - accounts
       summary: Connect to OAuth account
       description: Redirect to Google/Facebook OAuth page
-      operationId: connectOAuth
+      operationId: ConnectOAuth
       parameters:
-        - name: service
-          in: query
+        - name: provider
+          in: path
           required: true
           description: google / facebook
           schema:
-            $ref: "#/components/schemas/Service"
+            $ref: "#/components/schemas/Provider"
       responses:
         "200":
           description: OK
         "400":
-          description: Bad Request (service not exist)
+          description: Bad Request (provider not exist)
       security:
         - bearerAuth: []
-  /user/actions/disconnect:
-    get:
+    delete:
       tags:
-        - user
-      summary: Disconnect with OAuth account
-      operationId: disconnectOAuth
+        - accounts
+      summary: Disconnect to OAuth account
+      description: Redirect to Google/Facebook OAuth page
+      operationId: DisconnectOAuth
       parameters:
-        - name: service
-          in: query
+        - name: provider
+          in: path
           required: true
           description: google / facebook
           schema:
-            $ref: "#/components/schemas/Service"
+            $ref: "#/components/schemas/Provider"
       responses:
         "200":
           description: OK
         "400":
-          description: Bad Request (service not exist)
+          description: Bad Request (provider not exist)
       security:
         - bearerAuth: []
-  /user/search:
+
+  #users
+  /users/me:
     get:
       tags:
-        - user
-      summary: Search and get user profile
+        - users
+      summary: Get my profile
+      operationId: getMyProfile
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "400":
+          description: Invalid account supplied
+        "404":
+          description: User not found
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - users
+      summary: Updated my profile
+      description: This can only be done by the logged in user.
+      operationId: updateMyProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Profile"
+        description: Updated user object
+        required: true
+      responses:
+        "400":
+          description: Invalid user supplied
+        "404":
+          description: User not found
+      security:
+        - bearerAuth: []
+  /users:
+    get:
+      tags:
+        - users
+      summary: Search and get user
       description: Search user by email or name
       operationId: searchUser
       parameters:
@@ -342,10 +326,10 @@ paths:
           description: Forbidden
       security:
         - bearerAuth: []
-  /user/{uid}/profile:
+  /users/{uid}:
     get:
       tags:
-        - user
+        - users
       summary: Get user profile
       operationId: getUserProfile
       parameters:
@@ -370,104 +354,7 @@ paths:
       security:
         - bearerAuth: []
 
-  /livefeed:
-    get:
-      tags:
-        - live feed
-      summary: Get live feed list
-      operationId: getLiveFeed
-      parameters:
-        # - name: uid
-        #   in: path
-        #   description: Use 0 for testing.
-        #   required: true
-        #   schema:
-        #     type: integer
-        #     format: int64
-        - name: other
-          in: query
-          description: "true: also show other people in live feed"
-          schema:
-            type: boolean
-            default: true
-        - name: before
-          in: query
-          description: The number of latest posts skipped
-          schema:
-            type: integer
-            default: 0
-            minimum: 0
-            maximum: 10
-        - name: limit
-          in: query
-          description: The limit number of return posts
-          schema:
-            type: integer
-            default: 10
-            minimum: 0
-            maximum: 10
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
-        "400":
-          description: Bad Request
-      security:
-        - bearerAuth: []
-  /livefeed/{postId}:
-    get:
-      tags:
-        - live feed
-      summary: Get the post
-      operationId: getPost
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Post"
-        "400":
-          description: Bad Request
-        "403":
-          description: Forbidden
-      security:
-        - bearerAuth: []
-    # delete:
-    #   tags:
-    #     - live feed
-    #   summary: Delete/Hide the post in live feed list
-    #   description: The poster delete the post; the other poeple hide the post from their live feed list.
-    #   operationId: deletePost
-    #   parameters:
-    #     - name: postId
-    #       in: path
-    #       required: true
-    #       schema:
-    #         type: integer
-    #         format: int64
-    #   responses:
-    #     "200":
-    #       description: successful operation
-    #     "400":
-    #       description: Bad Request
-    #     "403":
-    #       description: Forbidden
-    #   security:
-    #     - bearerAuth: []
-
+  #list
   /list:
     get:
       tags:
@@ -508,7 +395,7 @@ paths:
                 themeId:
                   type: integer
                   format: int64
-                share:
+                participants:
                   type: array
                   items:
                     type: string
@@ -522,7 +409,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListCompact"
+                $ref: "#/components/schemas/List"
         "400":
           description: Bad Request
       security:
@@ -600,7 +487,7 @@ paths:
                 themeId:
                   type: integer
                   format: int64
-                share:
+                participants:
                   type: array
                   items:
                     type: string
@@ -633,7 +520,7 @@ paths:
           description: Forbidden
       security:
         - bearerAuth: []
-  /list/{listId}/content:
+  /list/{listId}/tasks:
     get:
       tags:
         - list
@@ -655,77 +542,76 @@ paths:
                 type: array
                 items:
                   oneOf:
-                    - $ref: "#/components/schemas/ListCompact"
-                    - $ref: "#/components/schemas/TaskCompact"
+                    - type: object
+                      title: list
+                      allOf:
+                        - type: object
+                          properties:
+                            type:
+                              type: string
+                              default: list
+                        - $ref: "#/components/schemas/List"
+                    - type: object
+                      title: task
+                      allOf:
+                        - type: object
+                          properties:
+                            type:
+                              type: string
+                              default: task
+                            taskId:
+                              type: integer
+                              format: int64
+                        - $ref: "#/components/schemas/Task"
                   discriminator:
                     propertyName: type
-                    mapping:
-                      list: "#/components/schemas/List"
-                      task: "#/components/schemas/Task"
-  /task:
-    get:
+    post:
       tags:
-        - task
-      summary: Get specific task
-      description: Get all tasks if the query value is null
-      operationId: getTasks
+        - list
+      summary: Create a task
+      operationId: createTask
       parameters:
         - name: listId
+          in: path
           required: true
-          in: query
           schema:
             type: integer
             format: int64
-            default: null
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Task"
-        "400":
-          description: Bad Request
-      security:
-        - bearerAuth: []
-    post:
-      tags:
-        - task
-      summary: Create a task
-      operationId: createTask
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              allOf:
-                - type: object
-                  properties:
-                    listId:
-                      type: integer
-                      format: int64
-                  required:
-                    - listId
-                - $ref: "#/components/schemas/Task"
+              $ref: "#/components/schemas/Task"
       responses:
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskCompact"
-
+                type: object
+                properties:
+                  taskId:
+                    type: integer
+                    format: int64
         "400":
           description: Bad Request
       security:
         - bearerAuth: []
-  /task/{taskId}:
+
+  /list/{listId}/tasks/{taskId}:
     get:
       tags:
-        - task
+        - list
       summary: Get specific task
       operationId: getTask
       parameters:
+        - name: listId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
         - name: taskId
           required: true
           in: path
@@ -747,10 +633,16 @@ paths:
         - bearerAuth: []
     put:
       tags:
-        - task
+        - list
       summary: Update specific task
       operationId: updateTask
       parameters:
+        - name: listId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
         - name: taskId
           in: path
           required: true
@@ -772,10 +664,16 @@ paths:
         - bearerAuth: []
     delete:
       tags:
-        - task
+        - list
       summary: Delete specific task
       operationId: deleteTask
       parameters:
+        - name: listId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
         - name: taskId
           in: path
           required: true
@@ -791,22 +689,26 @@ paths:
           description: Forbidden
       security:
         - bearerAuth: []
-  /notice:
+  /message:
     get:
       tags:
-        - notice
-      summary: Get notification messages
+        - message
+      summary: Get messages
       description: Get all tasks if the query value is null
-      operationId: getAllNotice
+      operationId: getAllMessage
       parameters:
+        - name: other
+          in: query
+          description: "true: also show other people in live feed"
+          schema:
+            type: boolean
+            default: false
         - name: before
           in: query
-          description: The number of latest posts skipped
+          description: postId
           schema:
             type: integer
-            default: 0
-            minimum: 0
-            maximum: 10
+            format: int64
         - name: limit
           in: query
           description: The limit number of return posts
@@ -828,30 +730,30 @@ paths:
                   message:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Notification"
+                      $ref: "#/components/schemas/Message"
         "400":
           description: Bad Request
       security:
         - bearerAuth: []
-  /notice/seen:
+  /message/seen:
     get:
       tags:
-        - notice
+        - message
       summary: Seen all message
-      operationId: seenAllNotice
+      operationId: seenAllMessage
       responses:
         "200":
           description: successful operation
       security:
         - bearerAuth: []
-  /notice/seen/{noticeId}:
+  /message/seen/{messageId}:
     get:
       tags:
-        - notice
+        - message
       summary: Seen specific message
-      operationId: seenNotice
+      operationId: seenMessage
       parameters:
-        - name: noticeId
+        - name: messageId
           in: path
           required: true
           schema:
@@ -862,59 +764,41 @@ paths:
           description: successful operation
       security:
         - bearerAuth: []
-  /notice/invite/{noticeId}:
+  /message/{messageId}:
     get:
       tags:
-        - notice
-      summary: Response to the invitation
-      operationId: responseInvite
+        - message
+      summary: Get specific message
+      operationId: getMessage
       parameters:
-        - name: noticeId
+        - name: messageId
           in: path
           required: true
           schema:
             type: integer
             format: int64
-        - name: accepted
-          in: query
-          required: true
-          schema:
-            type: boolean
       responses:
         "200":
           description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
       security:
         - bearerAuth: []
-  /setting/datkmode:
+  /setting:
     get:
       tags:
         - setting
-      summary: Switch dark mode
-      operationId: switchDarkMode
+      summary: Set darkmode, language
+      operationId: setting
       parameters:
         - name: darkmode
           in: query
-          required: true
           schema:
-            type: string
-            enum:
-              - open
-              - close
-      responses:
-        "200":
-          description: successful operation
-      security:
-        - bearerAuth: []
-  /setting/language:
-    get:
-      tags:
-        - setting
-      summary: Change language
-      operationId: changeLanguage
-      parameters:
+            type: boolean
         - name: language
           in: query
-          required: true
           schema:
             type: string
             enum:
@@ -923,8 +807,6 @@ paths:
       responses:
         "200":
           description: successful operation
-      security:
-        - bearerAuth: []
 externalDocs:
   description: Find out more about Swagger
   url: "http://swagger.io"
@@ -933,15 +815,15 @@ components:
     Token:
       type: object
       properties:
+        token_type:
+          type: string
+          default: "Bearer"
         access_token:
           type: string
         expires_in:
           type: integer
           format: int64
-        token_type:
-          type: string
-          default: "Bearer"
-    User:
+    Account:
       type: object
       properties:
         uid:
@@ -953,7 +835,7 @@ components:
         connected:
           type: array
           items:
-            $ref: "#/components/schemas/Service"
+            $ref: "#/components/schemas/Provider"
         userStatus:
           type: integer
           format: int32
@@ -961,21 +843,17 @@ components:
     Profile:
       type: object
       properties:
-        uid:
-          type: integer
-          format: int64
+        # uid:
+        #   type: integer
+        #   format: int64
         avatar:
           type: string
         firstName:
           type: string
         lastName:
           type: string
-    Share:
-      type: array
-      items:
-        $ref: "#/components/schemas/Profile"
-    Service:
-      description: OAuth service
+    Provider:
+      description: OAuth provider
       type: string
       enum:
         - google
@@ -983,62 +861,40 @@ components:
     List:
       type: object
       properties:
-        type:
-          type: string
-          enum: [list, task]
-          example: list
         listId:
           type: integer
           format: int64
         title:
           type: string
-        theme:
-          $ref: "#/components/schemas/Theme"
-        share:
-          type: array
-          items:
-            $ref: "#/components/schemas/Profile"
-        completed:
-          type: boolean
-          default: false
-    ListCompact:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [list, task]
-          example: list
-        listId:
-          type: integer
-          format: int64
-        title:
-          type: string
-        theme:
-          $ref: "#/components/schemas/Theme"
-        completed:
-          type: boolean
-          default: false
-
-    Theme:
-      type: object
-      properties:
         themeId:
           type: integer
           format: int64
-        icon:
-          type: string
-        link:
-          type: string
+        participants:
+          description: uid
+          type: array
+          items:
+            type: integer
+            format: int64
+        progress:
+          type: integer
+          description: The percentage of completion
+    # Theme:
+    #   type: object
+    #   properties:
+    #     # themeId:
+    #     #   type: integer
+    #     #   format: int64
+    #     icon:
+    #       type: string
+    #     link:
+    #       type: string
+    #       description: the path to the theme
     Task:
       type: object
       properties:
-        type:
-          type: string
-          enum: [list, task]
-          example: task
-        taskId:
-          type: integer
-          format: int64
+        # taskId:
+        #   type: integer
+        #   format: int64
         title:
           type: string
         remind:
@@ -1048,42 +904,19 @@ components:
           format: date-time
         repeat:
           $ref: "#/components/schemas/Repeat"
-        files:
+        attachments:
           type: array
           items:
-            $ref: "#/components/schemas/File"
-        urls:
+            $ref: "#/components/schemas/Attachment"
+        participants:
           type: array
           items:
             type: string
-        share:
-          type: array
-          items:
-            $ref: "#/components/schemas/Profile"
+            description: uid
         note:
           type: string
         review:
           type: string
-        completed:
-          type: boolean
-          default: false
-    TaskCompact:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [list, task]
-          example: task
-        taskId:
-          type: integer
-          format: int64
-        title:
-          type: string
-        Repeat:
-          $ref: "#/components/schemas/Repeat"
-        due:
-          type: string
-          format: date-time
         completed:
           type: boolean
           default: false
@@ -1135,9 +968,12 @@ components:
               enum:
                 - email
                 - web
-    File:
+    Attachment:
       type: object
       properties:
+        type:
+          type: string
+          enum: [url, file]
         name:
           type: string
         link:
@@ -1145,76 +981,80 @@ components:
 
     Invitation:
       type: object
-      required:
-        - type
       properties:
-        type:
-          type: string
-          enum:
-            - invitation
-            - post
-            - completion
         inviter:
           $ref: "#/components/schemas/Profile"
         list:
           $ref: "#/components/schemas/List"
+        acceptUrl:
+          type: string
         accepted:
           type: boolean
-    Post:
+    PostIds:
       type: object
-      required:
-        - type
       properties:
-        type:
-          type: string
-          enum:
-            - invitation
-            - post
-            - completion
         postId:
           type: integer
           format: int64
-        poster:
-          $ref: "#/components/schemas/Profile"
+        posterId:
+          type: integer
+          format: int64
+        taskId:
+          type: integer
+          format: int64
+          description: uid
+        review:
+          type: string
         date:
           type: string
           format: date-time
-        task:
-          $ref: "#/components/schemas/Task"
-        review:
-          type: string
-    Completion:
-      type: object
-      required:
-        - type
-      properties:
-        type:
-          type: string
-          enum:
-            - invitation
-            - post
-            - completion
-        user:
-          $ref: "#/components/schemas/Profile"
-        list:
-          $ref: "#/components/schemas/List"
-    Notification:
+    Post:
+      allOf:
+        - $ref: "#/components/schemas/PostIds"
+        - type: object
+          properties:
+            postId:
+              type: integer
+              format: int64
+            poster:
+              $ref: "#/components/schemas/Profile"
+            task:
+              $ref: "#/components/schemas/Task"
+    Message:
       type: object
       properties:
-        noticeId:
+        messageId:
           type: integer
           format: int64
         content:
           oneOf:
-            - $ref: "#/components/schemas/Invitation"
-            - $ref: "#/components/schemas/Post"
-            - $ref: "#/components/schemas/Completion"
+            - type: object
+              title: invitation
+              allOf:
+                - type: object
+                  required:
+                    - type
+                  properties:
+                    type:
+                      type: string
+                      default: invitation
+                - $ref: "#/components/schemas/Invitation"
+            - type: object
+              title: post
+              allOf:
+                - type: object
+                  required:
+                    - type
+                  properties:
+                    type:
+                      type: string
+                      default: post
+                - $ref: "#/components/schemas/Post"
           discriminator:
             propertyName: type
             mapping:
               invitation: "#/components/schemas/Invitation"
               post: "#/components/schemas/Post"
-              completion: "#/components/schemas/Completion"
         date:
           type: string
           format: date-time
@@ -1252,15 +1092,15 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-    account_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
-          scopes:
-            "write:account": modify your account
-            "read:account": read your account
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
+  #   account_auth:
+  #     type: oauth2
+  #     flows:
+  #       implicit:
+  #         authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
+  #         scopes:
+  #           "write:account": modify your account
+  #           "read:account": read your account
+  #   api_key:
+  #     type: apiKey
+  #     name: api_key
+  #     in: header
