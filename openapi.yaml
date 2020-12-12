@@ -2,17 +2,17 @@ openapi: 3.0.0
 info:
   description: |
     待辦事項 Side Project 的 API
-  version: "1.0.0"
+  version: 1.0.0
   title: To Do List API
-  termsOfService: "data:text/html;base64,VGhpcyBBUEkgaXMgZm9yIHRlc3Rpbmcgb25seSwgdGhlIHRleHRzIG9mIHRoaXMgT3BlbkFQSSBzcGVjaWZpY2F0aW9uIGFuZC9vciBkb2N1bWVudGF0aW9uIGlzIG9wZW4gYnV0IHRoZSBBUEkgaXRzZWxmIGlzIG5vdC4gV2UgZG8gbm90IG9mZmVyIGd1YXJhbnRlZSBvZiBhbnkga2luZC4="
+  termsOfService: 'data:text/html;base64,VGhpcyBBUEkgaXMgZm9yIHRlc3Rpbmcgb25seSwgdGhlIHRleHRzIG9mIHRoaXMgT3BlbkFQSSBzcGVjaWZpY2F0aW9uIGFuZC9vciBkb2N1bWVudGF0aW9uIGlzIG9wZW4gYnV0IHRoZSBBUEkgaXRzZWxmIGlzIG5vdC4gV2UgZG8gbm90IG9mZmVyIGd1YXJhbnRlZSBvZiBhbnkga2luZC4='
   contact:
     email: wei032499@gmail.com
   license:
     name: Apache 2.0
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
   - description: Not Available Yet
-    url: https://not-available-yet:9999/
+    url: 'https://not-available-yet:9999/'
 tags:
   - name: auth
     description: Operations about authorization
@@ -25,9 +25,7 @@ tags:
   - name: message
     description: Notification and Live Feed
   - name: setting
-
 paths:
-  #auth
   /auth/login:
     get:
       tags:
@@ -40,9 +38,9 @@ paths:
           in: query
           required: true
           schema:
-            $ref: "#/components/schemas/Provider"
+            $ref: '#/components/schemas/Provider'
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
@@ -52,9 +50,9 @@ paths:
                   url:
                     type: string
                     description: the url of OAuth page
-        "400":
+        '400':
           description: Bad Request
-        "401":
+        '401':
           description: Logs error
     post:
       tags:
@@ -62,15 +60,15 @@ paths:
       summary: Logs user into the system
       operationId: loginUser
       requestBody:
-        $ref: "#/components/requestBodies/Login"
+        $ref: '#/components/requestBodies/Login'
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Token"
-        "401":
+                $ref: '#/components/schemas/Token'
+        '401':
           description: Invalid account/password supplied
   /auth/toekn:
     get:
@@ -86,7 +84,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -97,8 +95,8 @@ paths:
                       url:
                         description: the url of redirection
                         type: string
-                  - $ref: "#/components/schemas/Token"
-        "400":
+                  - $ref: '#/components/schemas/Token'
+        '400':
           description: Bad Request
   /auth/logout:
     get:
@@ -111,8 +109,6 @@ paths:
           description: successful operation
       security:
         - bearerAuth: []
-
-  #accounts
   /accounts/create:
     post:
       tags:
@@ -134,15 +130,15 @@ paths:
                   type: string
                   format: password
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Token"
-        "400":
+                $ref: '#/components/schemas/Token'
+        '400':
           description: Bad Request
-        "409":
+        '409':
           description: The account already exists
   /accounts/me:
     get:
@@ -151,13 +147,13 @@ paths:
       summary: Get my account info
       operationId: getMyAccount
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account"
-        "403":
+                $ref: '#/components/schemas/Account'
+        '403':
           description: Forbidden
       security:
         - bearerAuth: []
@@ -183,9 +179,9 @@ paths:
         description: Updated user object
         required: true
       responses:
-        "200":
+        '200':
           description: successful operation
-        "403":
+        '403':
           description: password error
       security:
         - bearerAuth: []
@@ -207,13 +203,13 @@ paths:
                   format: password
         required: true
       responses:
-        "200":
+        '200':
           description: successful operation
-        "403":
+        '403':
           description: password error
       security:
         - bearerAuth: []
-  /accounts/me/actions/providers/{provider}:
+  '/accounts/me/actions/providers/{provider}':
     get:
       tags:
         - accounts
@@ -226,11 +222,11 @@ paths:
           required: true
           description: google / facebook
           schema:
-            $ref: "#/components/schemas/Provider"
+            $ref: '#/components/schemas/Provider'
       responses:
-        "200":
+        '200':
           description: OK
-        "400":
+        '400':
           description: Bad Request (provider not exist)
       security:
         - bearerAuth: []
@@ -246,16 +242,14 @@ paths:
           required: true
           description: google / facebook
           schema:
-            $ref: "#/components/schemas/Provider"
+            $ref: '#/components/schemas/Provider'
       responses:
-        "200":
+        '200':
           description: OK
-        "400":
+        '400':
           description: Bad Request (provider not exist)
       security:
         - bearerAuth: []
-
-  #users
   /users/me:
     get:
       tags:
@@ -263,15 +257,15 @@ paths:
       summary: Get my profile
       operationId: getMyProfile
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Profile"
-        "400":
+                $ref: '#/components/schemas/Profile'
+        '400':
           description: Invalid account supplied
-        "404":
+        '404':
           description: User not found
       security:
         - bearerAuth: []
@@ -285,13 +279,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Profile"
+              $ref: '#/components/schemas/Profile'
         description: Updated user object
         required: true
       responses:
-        "400":
+        '400':
           description: Invalid user supplied
-        "404":
+        '404':
           description: User not found
       security:
         - bearerAuth: []
@@ -310,17 +304,17 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Profile"
-        "403":
+                $ref: '#/components/schemas/Profile'
+        '403':
           description: Forbidden
       security:
         - bearerAuth: []
-  /users/{uid}:
+  '/users/{uid}':
     get:
       tags:
         - users
@@ -335,20 +329,18 @@ paths:
             type: integer
             format: int64
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Profile"
-        "400":
+                $ref: '#/components/schemas/Profile'
+        '400':
           description: Invalid account supplied
-        "404":
+        '404':
           description: User not found
       security:
         - bearerAuth: []
-
-  #list
   /list:
     get:
       tags:
@@ -356,15 +348,15 @@ paths:
       summary: Get lists
       operationId: getLists
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/List"
-        "400":
+                  $ref: '#/components/schemas/List'
+        '400':
           description: Bad Request
       security:
         - bearerAuth: []
@@ -398,13 +390,13 @@ paths:
                 - title
                 - themeId
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/List"
-        "400":
+                $ref: '#/components/schemas/List'
+        '400':
           description: Bad Request
       security:
         - bearerAuth: []
@@ -424,15 +416,18 @@ paths:
                 type: integer
                 format: int64
                 description: The order of listId
-              example: [0, 2, 1]
+              example:
+                - 0
+                - 2
+                - 1
       responses:
-        "200":
+        '200':
           description: successful operation
-        "400":
+        '400':
           description: Bad Request
       security:
         - bearerAuth: []
-  /list/{listId}:
+  '/list/{listId}':
     get:
       tags:
         - list
@@ -446,14 +441,13 @@ paths:
             type: integer
             format: int64
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/List"
-
-        "400":
+                $ref: '#/components/schemas/List'
+        '400':
           description: Bad Request
       security:
         - bearerAuth: []
@@ -487,9 +481,9 @@ paths:
                     type: string
                     description: uid
       responses:
-        "200":
+        '200':
           description: successful operation
-        "400":
+        '400':
           description: Bad Request
       security:
         - bearerAuth: []
@@ -506,15 +500,15 @@ paths:
             type: integer
             format: int64
       responses:
-        "200":
+        '200':
           description: successful operation
-        "400":
+        '400':
           description: Bad Request
-        "403":
+        '403':
           description: Forbidden
       security:
         - bearerAuth: []
-  /list/{listId}/tasks:
+  '/list/{listId}/tasks':
     get:
       tags:
         - list
@@ -528,7 +522,7 @@ paths:
             type: integer
             format: int64
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
@@ -544,7 +538,7 @@ paths:
                             type:
                               type: string
                               default: list
-                        - $ref: "#/components/schemas/List"
+                        - $ref: '#/components/schemas/List'
                     - type: object
                       title: task
                       allOf:
@@ -556,7 +550,7 @@ paths:
                             taskId:
                               type: integer
                               format: int64
-                        - $ref: "#/components/schemas/Task"
+                        - $ref: '#/components/schemas/Task'
                   discriminator:
                     propertyName: type
     post:
@@ -576,9 +570,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Task"
+              $ref: '#/components/schemas/Task'
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
@@ -588,12 +582,11 @@ paths:
                   taskId:
                     type: integer
                     format: int64
-        "400":
+        '400':
           description: Bad Request
       security:
         - bearerAuth: []
-
-  /list/{listId}/tasks/{taskId}:
+  '/list/{listId}/tasks/{taskId}':
     get:
       tags:
         - list
@@ -613,15 +606,15 @@ paths:
             type: integer
             format: int64
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Task"
-        "400":
+                  $ref: '#/components/schemas/Task'
+        '400':
           description: Bad Request
       security:
         - bearerAuth: []
@@ -648,11 +641,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Task"
+              $ref: '#/components/schemas/Task'
       responses:
-        "200":
+        '200':
           description: successful operation
-        "400":
+        '400':
           description: Bad Request
       security:
         - bearerAuth: []
@@ -675,11 +668,11 @@ paths:
             type: integer
             format: int64
       responses:
-        "200":
+        '200':
           description: successful operation
-        "400":
+        '400':
           description: Bad Request
-        "403":
+        '403':
           description: Forbidden
       security:
         - bearerAuth: []
@@ -693,7 +686,7 @@ paths:
       parameters:
         - name: other
           in: query
-          description: "true: also show other people in live feed"
+          description: 'true: also show other people in live feed'
           schema:
             type: boolean
             default: false
@@ -712,7 +705,7 @@ paths:
             minimum: 0
             maximum: 10
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
@@ -724,8 +717,8 @@ paths:
                   message:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Message"
-        "400":
+                      $ref: '#/components/schemas/Message'
+        '400':
           description: Bad Request
       security:
         - bearerAuth: []
@@ -736,11 +729,11 @@ paths:
       summary: Seen all message
       operationId: seenAllMessage
       responses:
-        "200":
+        '200':
           description: successful operation
       security:
         - bearerAuth: []
-  /message/seen/{messageId}:
+  '/message/seen/{messageId}':
     get:
       tags:
         - message
@@ -754,11 +747,11 @@ paths:
             type: integer
             format: int64
       responses:
-        "200":
+        '200':
           description: successful operation
       security:
         - bearerAuth: []
-  /message/{messageId}:
+  '/message/{messageId}':
     get:
       tags:
         - message
@@ -772,19 +765,19 @@ paths:
             type: integer
             format: int64
       responses:
-        "200":
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Message"
+                $ref: '#/components/schemas/Message'
       security:
         - bearerAuth: []
   /setting:
     get:
       tags:
         - setting
-      summary: Set darkmode, language
+      summary: 'Set darkmode, language'
       operationId: setting
       parameters:
         - name: darkmode
@@ -799,58 +792,274 @@ paths:
               - tw
               - en
       responses:
-        "200":
+        '200':
           description: successful operation
 externalDocs:
   description: Find out more about Swagger
-  url: "http://swagger.io"
+  url: 'http://swagger.io'
 components:
   schemas:
     Account:
-      $ref: "./schemas/Account.yaml"
+      type: object
+      properties:
+        uid:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        connected:
+          type: array
+          items:
+            $ref: '#/components/schemas/Provider'
+        userStatus:
+          type: integer
+          format: int32
+          description: User Status
     Attachment:
-      $ref: "./schemas/Attachment.yaml"
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - url
+            - file
+        name:
+          type: string
+        link:
+          type: string
     Invitation:
-      $ref: "./schemas/Invitation.yaml"
+      type: object
+      properties:
+        inviter:
+          $ref: '#/components/schemas/Profile'
+        list:
+          $ref: '#/components/schemas/List'
+        acceptUrl:
+          type: string
+        accepted:
+          type: boolean
     List:
-      $ref: "./schemas/List.yaml"
+      type: object
+      properties:
+        listId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        themeId:
+          type: integer
+          format: int64
+        participants:
+          description: uid
+          type: array
+          items:
+            type: integer
+            format: int64
+        progress:
+          type: integer
+          description: The percentage of completion
     Message:
-      $ref: "./schemas/Message.yaml"
+      type: object
+      properties:
+        messageId:
+          type: integer
+          format: int64
+        content:
+          oneOf:
+            - type: object
+              title: invitation
+              allOf:
+                - type: object
+                  required:
+                    - type
+                  properties:
+                    type:
+                      type: string
+                      default: invitation
+                - $ref: '#/components/schemas/Invitation'
+            - type: object
+              title: post
+              allOf:
+                - type: object
+                  required:
+                    - type
+                  properties:
+                    type:
+                      type: string
+                      default: post
+                - $ref: '#/components/schemas/Post'
+          discriminator:
+            propertyName: type
+            mapping:
+              invitation: ./Invitation.yaml
+              post: ./Post.yaml
+        date:
+          type: string
+          format: date-time
+        seen:
+          type: boolean
     Post:
-      $ref: "./schemas/Post.yaml"
+      allOf:
+        - $ref: '#/components/schemas/PostIds'
+        - type: object
+          properties:
+            postId:
+              type: integer
+              format: int64
+            poster:
+              $ref: '#/components/schemas/Profile'
+            task:
+              $ref: '#/components/schemas/Task'
     PostIds:
-      $ref: "./schemas/PostIds.yaml"
+      type: object
+      properties:
+        postId:
+          type: integer
+          format: int64
+        posterId:
+          type: integer
+          format: int64
+        taskId:
+          type: integer
+          format: int64
+          description: uid
+        review:
+          type: string
+        date:
+          type: string
+          format: date-time
     Profile:
-      $ref: "./schemas/Profile.yaml"
+      type: object
+      properties:
+        avatar:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
     Provider:
-      $ref: "./schemas/Provider.yaml"
+      description: OAuth provider
+      type: string
+      enum:
+        - google
+        - facebook
     Remind:
-      $ref: "./schemas/Remind.yaml"
+      type: array
+      items:
+        type: object
+        properties:
+          amount:
+            description: the amount of time
+            type: integer
+            format: int64
+          unit:
+            description: the unit of time
+            type: string
+            enum:
+              - minute
+              - hour
+              - day
+              - week
+              - month
+              - year
+          time:
+            type: string
+            format: time
+            description: for day
+          notification:
+            type: array
+            items:
+              type: string
+              enum:
+                - email
+                - web
     Repeat:
-      $ref: "./schemas/Repeat.yaml"
+      type: object
+      properties:
+        amount:
+          description: the amount of time
+          type: integer
+          format: int64
+        unit:
+          type: string
+          enum:
+            - day
+            - week
+            - month
+            - year
+        time:
+          type: string
+          format: time
+          description: for day
     Task:
-      $ref: "./schemas/Task.yaml"
+      type: object
+      properties:
+        title:
+          type: string
+        remind:
+          $ref: '#/components/schemas/Remind'
+        due:
+          type: string
+          format: date-time
+        repeat:
+          $ref: '#/components/schemas/Repeat'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        participants:
+          type: array
+          items:
+            type: string
+            description: uid
+        note:
+          type: string
+        review:
+          type: string
+        completed:
+          type: boolean
+          default: false
     Token:
-      $ref: "./schemas/Token.yaml"
+      type: object
+      properties:
+        token_type:
+          type: string
+          default: Bearer
+        access_token:
+          type: string
+        expires_in:
+          type: integer
+          format: int64
   requestBodies:
     Login:
-      $ref: "./request_bodies/Login.yaml"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: password
+            required:
+              - email
+              - password
+      description: The information for login
+      required: true
     UserArray:
-      $ref: "./request_bodies/UserArray.yaml"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Profile'
+      description: List of user object
+      required: true
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-  #   account_auth:
-  #     type: oauth2
-  #     flows:
-  #       implicit:
-  #         authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
-  #         scopes:
-  #           "write:account": modify your account
-  #           "read:account": read your account
-  #   api_key:
-  #     type: apiKey
-  #     name: api_key
-  #     in: header
