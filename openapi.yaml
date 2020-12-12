@@ -1,24 +1,18 @@
 openapi: 3.0.0
 info:
   description: |
-    This is a sample Petstore server.  You can find
-    out more about Swagger at
-    [http://swagger.io](http://swagger.io) or on
-    [irc.freenode.net, #swagger](http://swagger.io/irc/).
+    待辦事項 Side Project 的 API
   version: "1.0.0"
-  title: To Do List Web
-  termsOfService: "http://swagger.io/terms/"
+  title: To Do List API
+  termsOfService: "data:text/html;base64,VGhpcyBBUEkgaXMgZm9yIHRlc3Rpbmcgb25seSwgdGhlIHRleHRzIG9mIHRoaXMgT3BlbkFQSSBzcGVjaWZpY2F0aW9uIGFuZC9vciBkb2N1bWVudGF0aW9uIGlzIG9wZW4gYnV0IHRoZSBBUEkgaXRzZWxmIGlzIG5vdC4gV2UgZG8gbm90IG9mZmVyIGd1YXJhbnRlZSBvZiBhbnkga2luZC4="
   contact:
     email: wei032499@gmail.com
   license:
     name: Apache 2.0
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 servers:
-  # Added by API Auto Mocking Plugin
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/wei_032499/ToDoList/1.0.0
-  # - url: "https://petstore.swagger.io/v2"
+  - description: Not Available Yet
+    url: https://not-available-yet:9999/
 tags:
   - name: auth
     description: Operations about authorization
@@ -812,281 +806,37 @@ externalDocs:
   url: "http://swagger.io"
 components:
   schemas:
-    Token:
-      type: object
-      properties:
-        token_type:
-          type: string
-          default: "Bearer"
-        access_token:
-          type: string
-        expires_in:
-          type: integer
-          format: int64
     Account:
-      type: object
-      properties:
-        uid:
-          type: integer
-          format: int64
-        email:
-          type: string
-          format: email
-        connected:
-          type: array
-          items:
-            $ref: "#/components/schemas/Provider"
-        userStatus:
-          type: integer
-          format: int32
-          description: User Status
-    Profile:
-      type: object
-      properties:
-        # uid:
-        #   type: integer
-        #   format: int64
-        avatar:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-    Provider:
-      description: OAuth provider
-      type: string
-      enum:
-        - google
-        - facebook
-    List:
-      type: object
-      properties:
-        listId:
-          type: integer
-          format: int64
-        title:
-          type: string
-        themeId:
-          type: integer
-          format: int64
-        participants:
-          description: uid
-          type: array
-          items:
-            type: integer
-            format: int64
-        progress:
-          type: integer
-          description: The percentage of completion
-    # Theme:
-    #   type: object
-    #   properties:
-    #     # themeId:
-    #     #   type: integer
-    #     #   format: int64
-    #     icon:
-    #       type: string
-    #     link:
-    #       type: string
-    #       description: the path to the theme
-    Task:
-      type: object
-      properties:
-        # taskId:
-        #   type: integer
-        #   format: int64
-        title:
-          type: string
-        remind:
-          $ref: "#/components/schemas/Remind"
-        due:
-          type: string
-          format: date-time
-        repeat:
-          $ref: "#/components/schemas/Repeat"
-        attachments:
-          type: array
-          items:
-            $ref: "#/components/schemas/Attachment"
-        participants:
-          type: array
-          items:
-            type: string
-            description: uid
-        note:
-          type: string
-        review:
-          type: string
-        completed:
-          type: boolean
-          default: false
-    Repeat:
-      type: object
-      properties:
-        amount:
-          description: the amount of time
-          type: integer
-          format: int64
-        unit:
-          type: string
-          enum:
-            - day
-            - week
-            - month
-            - year
-        time:
-          type: string
-          format: time
-          description: for day
-    Remind:
-      type: array
-      items:
-        type: object
-        properties:
-          amount:
-            description: the amount of time
-            type: integer
-            format: int64
-          unit:
-            description: the unit of time
-            type: string
-            enum:
-              - minute
-              - hour
-              - day
-              - week
-              - month
-              - year
-          time:
-            type: string
-            format: time
-            description: for day
-          notification:
-            type: array
-            items:
-              type: string
-              enum:
-                - email
-                - web
+      $ref: "./schemas/Account.yaml"
     Attachment:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [url, file]
-        name:
-          type: string
-        link:
-          type: string
-
+      $ref: "./schemas/Attachment.yaml"
     Invitation:
-      type: object
-      properties:
-        inviter:
-          $ref: "#/components/schemas/Profile"
-        list:
-          $ref: "#/components/schemas/List"
-        acceptUrl:
-          type: string
-        accepted:
-          type: boolean
-    PostIds:
-      type: object
-      properties:
-        postId:
-          type: integer
-          format: int64
-        posterId:
-          type: integer
-          format: int64
-        taskId:
-          type: integer
-          format: int64
-          description: uid
-        review:
-          type: string
-        date:
-          type: string
-          format: date-time
-    Post:
-      allOf:
-        - $ref: "#/components/schemas/PostIds"
-        - type: object
-          properties:
-            postId:
-              type: integer
-              format: int64
-            poster:
-              $ref: "#/components/schemas/Profile"
-            task:
-              $ref: "#/components/schemas/Task"
+      $ref: "./schemas/Invitation.yaml"
+    List:
+      $ref: "./schemas/List.yaml"
     Message:
-      type: object
-      properties:
-        messageId:
-          type: integer
-          format: int64
-        content:
-          oneOf:
-            - type: object
-              title: invitation
-              allOf:
-                - type: object
-                  required:
-                    - type
-                  properties:
-                    type:
-                      type: string
-                      default: invitation
-                - $ref: "#/components/schemas/Invitation"
-            - type: object
-              title: post
-              allOf:
-                - type: object
-                  required:
-                    - type
-                  properties:
-                    type:
-                      type: string
-                      default: post
-                - $ref: "#/components/schemas/Post"
-          discriminator:
-            propertyName: type
-            mapping:
-              invitation: "#/components/schemas/Invitation"
-              post: "#/components/schemas/Post"
-        date:
-          type: string
-          format: date-time
-        seen:
-          type: boolean
+      $ref: "./schemas/Message.yaml"
+    Post:
+      $ref: "./schemas/Post.yaml"
+    PostIds:
+      $ref: "./schemas/PostIds.yaml"
+    Profile:
+      $ref: "./schemas/Profile.yaml"
+    Provider:
+      $ref: "./schemas/Provider.yaml"
+    Remind:
+      $ref: "./schemas/Remind.yaml"
+    Repeat:
+      $ref: "./schemas/Repeat.yaml"
+    Task:
+      $ref: "./schemas/Task.yaml"
+    Token:
+      $ref: "./schemas/Token.yaml"
   requestBodies:
     Login:
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              email:
-                type: string
-                format: email
-              password:
-                type: string
-                format: password
-            required:
-              - email
-              - password
-      description: The information for login
-      required: true
+      $ref: "./request_bodies/Login.yaml"
     UserArray:
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Profile"
-      description: List of user object
-      required: true
+      $ref: "./request_bodies/UserArray.yaml"
   securitySchemes:
     bearerAuth:
       type: http
