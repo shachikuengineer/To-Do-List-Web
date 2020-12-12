@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Bundle OpenAPI specification
-        uses: mpetrunic/swagger-cli-action@v1
+        uses: mpetrunic/swagger-cli-action@v1.0.0
         with:
           command: "bundle openapi.yaml --outfile _build/openapi.yaml --type yaml"
       - name: Generate Swagger UI
