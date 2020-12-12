@@ -17,11 +17,15 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
+      - name: Bundle OpenAPI specification
+        uses: mpetrunic/swagger-cli-action@v1
+        with:
+          command: "bundle openapi.yaml --outfile _build/openapi.yaml --type yaml"
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1.0.1
         with:
           output: swagger-ui
-          spec-file: openapi.yaml
+          spec-file: _build/openapi.yaml
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
