@@ -1,0 +1,11 @@
+type: object
+properties:
+  # uid:
+  #   type: integer
+  #   format: int64
+  avatar:
+    type: string
+  firstName:
+    type: string
+  lastName:
+    type: string

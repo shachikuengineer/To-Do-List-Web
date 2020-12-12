@@ -1,0 +1,10 @@
+type: object
+properties:
+  inviter:
+    $ref: "./Profile.yaml"
+  list:
+    $ref: "./List.yaml"
+  acceptUrl:
+    type: string
+  accepted:
+    type: boolean

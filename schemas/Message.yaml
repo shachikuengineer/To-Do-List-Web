@@ -1,0 +1,39 @@
+type: object
+properties:
+  messageId:
+    type: integer
+    format: int64
+  content:
+    oneOf:
+      - type: object
+        title: invitation
+        allOf:
+          - type: object
+            required:
+              - type
+            properties:
+              type:
+                type: string
+                default: invitation
+          - $ref: "./Invitation.yaml"
+      - type: object
+        title: post
+        allOf:
+          - type: object
+            required:
+              - type
+            properties:
+              type:
+                type: string
+                default: post
+          - $ref: "./Post.yaml"
+    discriminator:
+      propertyName: type
+      mapping:
+        invitation: "./Invitation.yaml"
+        post: "./Post.yaml"
+  date:
+    type: string
+    format: date-time
+  seen:
+    type: boolean

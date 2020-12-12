@@ -1,0 +1,30 @@
+type: object
+properties:
+  # taskId:
+  #   type: integer
+  #   format: int64
+  title:
+    type: string
+  remind:
+    $ref: "./Remind.yaml"
+  due:
+    type: string
+    format: date-time
+  repeat:
+    $ref: "./Repeat.yaml"
+  attachments:
+    type: array
+    items:
+      $ref: "./Attachment.yaml"
+  participants:
+    type: array
+    items:
+      type: string
+      description: uid
+  note:
+    type: string
+  review:
+    type: string
+  completed:
+    type: boolean
+    default: false

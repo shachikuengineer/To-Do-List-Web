@@ -1,0 +1,11 @@
+allOf:
+  - $ref: "./PostIds.yaml"
+  - type: object
+    properties:
+      postId:
+        type: integer
+        format: int64
+      poster:
+        $ref: "./Profile.yaml"
+      task:
+        $ref: "./Task.yaml"

@@ -1,0 +1,19 @@
+type: object
+properties:
+  listId:
+    type: integer
+    format: int64
+  title:
+    type: string
+  themeId:
+    type: integer
+    format: int64
+  participants:
+    description: uid
+    type: array
+    items:
+      type: integer
+      format: int64
+  progress:
+    type: integer
+    description: The percentage of completion

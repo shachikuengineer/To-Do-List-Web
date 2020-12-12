@@ -1,0 +1,16 @@
+type: object
+properties:
+  uid:
+    type: integer
+    format: int64
+  email:
+    type: string
+    format: email
+  connected:
+    type: array
+    items:
+      $ref: "./Provider.yaml"
+  userStatus:
+    type: integer
+    format: int32
+    description: User Status

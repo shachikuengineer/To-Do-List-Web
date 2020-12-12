@@ -1,0 +1,5 @@
+description: OAuth provider
+type: string
+enum:
+  - google
+  - facebook

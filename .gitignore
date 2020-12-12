@@ -1,0 +1,10 @@
+node_modules
+.openapi-generator-ignore
+index.html
+main.js
+docs
+openapitools.json
+package-lock.json
+package.json
+.openapi-generator
+swagger-codegen-*
