@@ -32,4 +32,4 @@ jobs:
             git config user.email github-actions@github.com
             git add .
             git commit -m "Update openapi.json"
-            git push origin convert
+            git push origin convert -f
