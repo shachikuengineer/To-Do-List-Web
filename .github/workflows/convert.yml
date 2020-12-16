@@ -26,8 +26,10 @@ jobs:
           to: 'json'
       - name: Write yaml2json result to file
         run: echo '${{ steps.yaml2json.outputs.data }}' > openapi.json
-      - name: Push new files back to master.
-        uses: mikeal/publish-to-github-action@1.0.0
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            BRANCH_NAME: 'convert' #optional defaults to master
+      - name: Push files back to repo.
+        run:
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+            git add .
+            git commit -m "generated"
+            git push
