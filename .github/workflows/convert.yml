@@ -27,8 +27,7 @@ jobs:
       - name: Write yaml2json result to file
         run: echo '${{ steps.yaml2json.outputs.data }}' > openapi.json
       - name: Push files back to repo.
-      - uses: actions/checkout@v2
-        run:
+        run: |
             git config user.name github-actions
             git config user.email github-actions@github.com
             git add .
