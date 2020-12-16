@@ -25,7 +25,7 @@ jobs:
           from: 'yaml'
           to: 'json'
       - name: Write yaml2json result to file
-        run: 'echo "${{ steps.yaml2json.outputs.data }}" > openapi.json'
+        run: 'echo "${{ steps.yaml2json.outputs.data }}" > openapi.json 2>&1'
       - name: Push new files back to master.
         uses: mikeal/publish-to-github-action@1.0.0
         env:
