@@ -1,9 +1,0 @@
-type: object
-properties:
-  type:
-    type: string
-    enum: [url, file]
-  name:
-    type: string
-  link:
-    type: string
