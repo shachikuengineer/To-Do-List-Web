@@ -2,9 +2,13 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const http = require('https');
+const dirname = "/mnt/c/Users/wei03/Google 雲端硬碟/linetv/";//__dirname
 router.get('/', async (req, res) => {
-
-    const datetime = new Date().toISOString().slice(0, 10);
+    let h = req.query.offSetH;
+    if (typeof h === 'undefined')
+        h = '0';
+    const today = new Date(Date.now() + parseInt(h) * 60 * 60 * 1000);
+    const datetime = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, '0') + "-" + String(today.getDate()).padStart(2, '0');
     const localIP = "http://shachikuengineer.ddns.net:3000";
     const dramaId = req.query.dramaId;
     let eps = req.query.eps;
@@ -21,18 +25,19 @@ router.get('/', async (req, res) => {
         }
 
         let returnResult = { status: "", file: dramaId + "_" + eps };
-        if (typeof req.query.daily === 'undefined' && fs.existsSync(__dirname + '/key/' + dramaId + "_" + eps) && fs.existsSync(__dirname + '/m3u8/' + dramaId + "_" + eps + ".m3u8") && typeof req.query.playlist === 'undefined') {
+        if (typeof req.query.daily === 'undefined' && fs.existsSync(dirname + '/key/' + dramaId + "_" + eps) && fs.existsSync(dirname + '/m3u8/' + dramaId + "_" + eps + ".m3u8") && typeof req.query.playlist === 'undefined') {
             returnResult.status = "exist";
 
-        } else if (typeof req.query.daily !== 'undefined' && (isToday || (fs.existsSync(__dirname + '/key/' + dramaId + "_" + eps + "-" + datetime) && fs.existsSync(__dirname + '/m3u8/' + dramaId + "_" + eps + "-" + datetime + ".m3u8"))) && typeof req.query.playlist === 'undefined') {
+        } else if (typeof req.query.daily !== 'undefined' && (isToday || (fs.existsSync(dirname + '/key/' + dramaId + "_" + eps + "-" + datetime) && fs.existsSync(dirname + '/m3u8/' + dramaId + "_" + eps + "-" + datetime + ".m3u8"))) && typeof req.query.playlist === 'undefined') {
             returnResult.status = "exist";
+            console.log(dirname + '/key/' + dramaId + "_" + eps + "-" + datetime);
         } else {
-            if (!fs.existsSync(__dirname + '/key'))
-                fs.mkdirSync(__dirname + '/key');
-            if (!fs.existsSync(__dirname + '/m3u8'))
-                fs.mkdirSync(__dirname + '/m3u8');
-            if (!fs.existsSync(__dirname + '/local'))
-                fs.mkdirSync(__dirname + '/local');
+            if (!fs.existsSync(dirname + '/key'))
+                fs.mkdirSync(dirname + '/key');
+            if (!fs.existsSync(dirname + '/m3u8'))
+                fs.mkdirSync(dirname + '/m3u8');
+            if (!fs.existsSync(dirname + '/local'))
+                fs.mkdirSync(dirname + '/local');
 
             let url = "https://www.linetv.tw/api/part/" + dramaId + "/eps/" + eps + "/part?chocomemberId=";
 
@@ -103,8 +108,8 @@ router.get('/', async (req, res) => {
 
             // subtitle
             if (subtitle !== null) {
-                if (!fs.existsSync(__dirname + "/m3u8/subs/"))
-                    fs.mkdirSync(__dirname + "/m3u8/subs/");
+                if (!fs.existsSync(dirname + "/m3u8/subs/"))
+                    fs.mkdirSync(dirname + "/m3u8/subs/");
 
                 request_call = new Promise((resolve, reject) => {
                     http.get(subtitle, (response) => {
@@ -130,10 +135,10 @@ router.get('/', async (req, res) => {
                 let subExt = array[array.length - 1];
                 array = subExt.split(".");
                 subExt = array[array.length - 1];
-                fs.writeFileSync(__dirname + "/m3u8/subs/" + dramaId + "_" + eps + "." + subExt, result, function (err) {
+                fs.writeFileSync(dirname + "/m3u8/subs/" + dramaId + "_" + eps + "." + subExt, result, function (err) {
                     if (err) throw err;
                 });
-                fs.copyFileSync(__dirname + "/m3u8/subs/" + dramaId + "_" + eps + "." + subExt, __dirname + "/m3u8/subs/" + dramaId + "_" + eps + "-" + datetime + "." + subExt);
+                fs.copyFileSync(dirname + "/m3u8/subs/" + dramaId + "_" + eps + "." + subExt, dirname + "/m3u8/subs/" + dramaId + "_" + eps + "-" + datetime + "." + subExt);
             }
 
 
@@ -160,26 +165,26 @@ router.get('/', async (req, res) => {
             result = result.split(dramaFile + '_1080p.ts').join(link + '_1080p.ts');
 
 
-            if (!fs.existsSync(__dirname + "/local/" + dramaId))
-                fs.mkdirSync(__dirname + "/local/" + dramaId);
+            if (!fs.existsSync(dirname + "/local/" + dramaId))
+                fs.mkdirSync(dirname + "/local/" + dramaId);
 
             if (typeof req.query.daily !== 'undefined') {
 
-                fs.writeFileSync(__dirname + "/local/" + dramaId + "/" + dramaId + "_" + eps + "-" + datetime + ".m3u8", result.split("https://keydeliver.linetv.tw/jurassicPark").join(dramaId + "_" + eps + "-" + datetime), function (err) {
+                fs.writeFileSync(dirname + "/local/" + dramaId + "/" + dramaId + "_" + eps + "-" + datetime + ".m3u8", result.split("https://keydeliver.linetv.tw/jurassicPark").join(dramaId + "_" + eps + "-" + datetime), function (err) {
                     if (err) throw err;
                 });
-                fs.writeFileSync(__dirname + "/m3u8/" + dramaId + "_" + eps + "-" + datetime + ".m3u8", result.split("https://keydeliver.linetv.tw/jurassicPark").join(localIP + "/linetv?key&dramaId=" + dramaId + "&eps=" + eps + "-" + datetime), function (err) {
+                fs.writeFileSync(dirname + "/m3u8/" + dramaId + "_" + eps + "-" + datetime + ".m3u8", result.split("https://keydeliver.linetv.tw/jurassicPark").join(localIP + "/linetv?key&dramaId=" + dramaId + "&eps=" + eps + "-" + datetime), function (err) {
                     if (err) throw err;
                 });
             }
 
 
             resultLocal = result.split("https://keydeliver.linetv.tw/jurassicPark").join(dramaId + "_" + eps);
-            fs.writeFileSync(__dirname + "/local/" + dramaId + "/" + dramaId + "_" + eps + ".m3u8", resultLocal, function (err) {
+            fs.writeFileSync(dirname + "/local/" + dramaId + "/" + dramaId + "_" + eps + ".m3u8", resultLocal, function (err) {
                 if (err) throw err;
             });
             result = result.split("https://keydeliver.linetv.tw/jurassicPark").join(localIP + "/linetv?key&dramaId=" + dramaId + "&eps=" + eps);
-            fs.writeFileSync(__dirname + "/m3u8/" + dramaId + "_" + eps + ".m3u8", result, function (err) {
+            fs.writeFileSync(dirname + "/m3u8/" + dramaId + "_" + eps + ".m3u8", result, function (err) {
                 if (err) throw err;
             });
 
@@ -229,8 +234,8 @@ router.get('/', async (req, res) => {
                     'authentication': result.token
                 }
             };
-            if (fs.existsSync(__dirname + "/key/" + dramaId + "_" + eps)) {
-                fs.unlinkSync(__dirname + "/key/" + dramaId + "_" + eps);
+            if (fs.existsSync(dirname + "/key/" + dramaId + "_" + eps)) {
+                fs.unlinkSync(dirname + "/key/" + dramaId + "_" + eps);
             }
             request_call = new Promise((resolve, reject) => {
                 http.request(options, (response) => {
@@ -238,7 +243,7 @@ router.get('/', async (req, res) => {
                     response.on('data', function (chunk) {
                         rawData += chunk;
 
-                        fs.appendFileSync(__dirname + "/key/" + dramaId + "_" + eps, chunk);
+                        fs.appendFileSync(dirname + "/key/" + dramaId + "_" + eps, chunk);
                     });
                     response.on('end', () => {
                         try {
@@ -252,18 +257,19 @@ router.get('/', async (req, res) => {
             });
 
             result = await request_call;
-            fs.copyFileSync(__dirname + "/key/" + dramaId + "_" + eps, __dirname + "/local/" + dramaId + "/" + dramaId + "_" + eps);
+            fs.copyFileSync(dirname + "/key/" + dramaId + "_" + eps, dirname + "/local/" + dramaId + "/" + dramaId + "_" + eps);
             // console.log(result);
-            // fs.writeFileSync(__dirname + "/local/" + dramaId + "/" + dramaId + "_" + eps, result, "binary", function (err) {
+            // fs.writeFileSync(dirname + "/local/" + dramaId + "/" + dramaId + "_" + eps, result, "binary", function (err) {
             //     if (err) throw err;
             // });
-            // fs.writeFileSync(__dirname + "/key/" + dramaId + "_" + eps, result, "binary", function (err) {
+            // fs.writeFileSync(dirname + "/key/" + dramaId + "_" + eps, result, "binary", function (err) {
             //     if (err) throw err;
             // });
 
 
             if (typeof req.query.daily !== 'undefined') {
-                fs.copyFileSync(__dirname + "/key/" + dramaId + "_" + eps, __dirname + "/key/" + dramaId + "_" + eps + "-" + datetime);
+                fs.copyFileSync(dirname + "/key/" + dramaId + "_" + eps, dirname + "/key/" + dramaId + "_" + eps + "-" + datetime);
+                fs.copyFileSync(dirname + "/key/" + dramaId + "_" + eps, dirname + "/local/" + dramaId + "/" + dramaId + "_" + eps + "-" + datetime);
                 eps += "-" + datetime;
             }
             returnResult.status = "success";
@@ -272,8 +278,8 @@ router.get('/', async (req, res) => {
 
         console.log(returnResult);
         if (typeof req.query.key !== 'undefined') {
-            let stat = fs.statSync(__dirname + '/key/' + dramaId + "_" + eps);
-            let readStream = fs.createReadStream(__dirname + '/key/' + dramaId + "_" + eps);
+            let stat = fs.statSync(dirname + '/key/' + dramaId + "_" + eps);
+            let readStream = fs.createReadStream(dirname + '/key/' + dramaId + "_" + eps);
             res.writeHead(200, {
                 'Content-Type': 'binary/octet-stream',
                 'Content-Disposition': 'attachment; filename=' + dramaId + '_' + eps,
@@ -282,8 +288,8 @@ router.get('/', async (req, res) => {
             readStream.pipe(res);
         }
         else if (typeof req.query.local === 'undefined') {
-            let stat = fs.statSync(__dirname + '/m3u8/' + dramaId + "_" + eps + ".m3u8");
-            let readStream = fs.createReadStream(__dirname + '/m3u8/' + dramaId + "_" + eps + ".m3u8");
+            let stat = fs.statSync(dirname + '/m3u8/' + dramaId + "_" + eps + ".m3u8");
+            let readStream = fs.createReadStream(dirname + '/m3u8/' + dramaId + "_" + eps + ".m3u8");
             res.writeHead(200, {
                 'Content-Type': 'application/vnd.apple.mpegurl',
                 'Content-Disposition': 'attachment; filename=' + dramaId + '_' + eps + '.m3u8',
